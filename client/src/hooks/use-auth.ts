@@ -41,8 +41,21 @@ export function useAuth() {
     queryKey: ["/api/auth/user", token],
     queryFn: async () => {
       if (!token) return null;
+      const headers: Record<string, string> = { "Authorization": `Bearer ${token}` };
+      
+      const storedHeaders = sessionStorage.getItem('auth_headers');
+      if (storedHeaders) {
+        try {
+          const extraHeaders = JSON.parse(storedHeaders);
+          Object.assign(headers, extraHeaders);
+          sessionStorage.removeItem('auth_headers');
+        } catch (e) {
+          console.error("Error parsing stored auth headers", e);
+        }
+      }
+
       const res = await fetch("/api/auth/user", {
-        headers: { "Authorization": `Bearer ${token}` }
+        headers
       });
       if (res.status === 401) return null;
       if (!res.ok) throw new Error("Failed to fetch user");
@@ -59,14 +72,20 @@ export function useAuth() {
   });
 
   const registerMutation = useMutation({
-    mutationFn: async ({ email, password }: any) => {
+    mutationFn: async ({ email, password, headers }: any) => {
+      if (headers) {
+        sessionStorage.setItem('auth_headers', JSON.stringify(headers));
+      }
       const res = await createUserWithEmailAndPassword(auth, email, password);
       return res.user;
     }
   });
 
   const googleLoginMutation = useMutation({
-    mutationFn: async () => {
+    mutationFn: async (headers?: Record<string, string>) => {
+      if (headers) {
+        sessionStorage.setItem('auth_headers', JSON.stringify(headers));
+      }
       const res = await signInWithPopup(auth, googleProvider);
       return res.user;
     }

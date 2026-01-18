@@ -54,12 +54,23 @@ export const firebaseAuthMiddleware = async (req: any, res: Response, next: Next
           username: decodedToken.email?.split('@')[0] || 'user',
           credits: 10,
           lastIp: ipStr,
+          termsAccepted: req.headers['x-terms-accepted'] === 'true',
+          privacyAccepted: req.headers['x-privacy-accepted'] === 'true',
         });
       } else {
         if (user.isIpBlocked) {
           return res.status(403).json({ message: "Your IP is blocked. Contact Admin." });
         }
-        await storage.updateUser(user.id, { lastIp: ipStr });
+        
+        const updates: any = { lastIp: ipStr };
+        if (req.headers['x-terms-accepted'] === 'true') {
+          updates.termsAccepted = true;
+        }
+        if (req.headers['x-privacy-accepted'] === 'true') {
+          updates.privacyAccepted = true;
+        }
+        
+        await storage.updateUser(user.id, updates);
       }
     } catch (dbError) {
       console.error("Database sync error in auth middleware:", dbError);

@@ -78,11 +78,18 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
       if (isLogin) {
         await login({ email: data.email, password: data.password });
       } else {
+        // Pass terms and privacy headers for the registration request
+        const registerHeaders = {
+          'x-terms-accepted': String(data.termsAccepted),
+          'x-privacy-accepted': String(data.privacyAccepted),
+        };
+        
         await register({ 
           email: data.email, 
           password: data.password,
           termsAccepted: data.termsAccepted,
-          privacyAccepted: data.privacyAccepted
+          privacyAccepted: data.privacyAccepted,
+          headers: registerHeaders // This needs support in useAuth/apiRequest
         } as any);
       }
       onClose();
@@ -121,7 +128,14 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
     }
 
     try {
-      await googleLogin();
+      // Pass terms/privacy headers for Google login if it's a new signup
+      const headers: Record<string, string> = {};
+      if (!isLogin) {
+        headers['x-terms-accepted'] = String(form.getValues("termsAccepted"));
+        headers['x-privacy-accepted'] = String(form.getValues("privacyAccepted"));
+      }
+      
+      await googleLogin(headers);
       onClose();
       setLocation("/dashboard");
     } catch (error: any) {

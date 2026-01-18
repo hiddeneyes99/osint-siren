@@ -47,6 +47,7 @@ export default function AdminLogin() {
   const [protectedInput, setProtectedInput] = useState({ number: "", reason: "" });
   const [toolInput, setToolInput] = useState({ credits: 10, expiry: "" });
   const [generatedCode, setGeneratedCode] = useState<string | null>(null);
+  const [selectedLog, setSelectedLog] = useState<RequestLog | null>(null);
 
   const form = useForm<LoginForm>({
     resolver: zodResolver(loginSchema),
@@ -193,6 +194,22 @@ export default function AdminLogin() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
       toast({ title: "User status updated" });
+    },
+  });
+
+  const blockIpMutation = useMutation({
+    mutationFn: async ({ userId, blockIp }: { userId: string; blockIp: boolean }) => {
+      const res = await fetch(`/api/admin/users/${userId}/block`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ blocked: false, blockIp }),
+      });
+      if (!res.ok) throw new Error("Failed to update IP status");
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
+      toast({ title: "IP status updated" });
     },
   });
 
@@ -525,6 +542,7 @@ export default function AdminLogin() {
                 <thead className="bg-primary/5 text-xs">
                   <tr>
                     <th className="p-4 font-bold border-b border-primary/10 uppercase tracking-widest">Operative</th>
+                    <th className="p-4 font-bold border-b border-primary/10 uppercase tracking-widest">IP Address</th>
                     <th className="p-4 font-bold border-b border-primary/10 uppercase tracking-widest">Credits</th>
                     <th className="p-4 font-bold border-b border-primary/10 uppercase tracking-widest">Status</th>
                     <th className="p-4 font-bold border-b border-primary/10 uppercase tracking-widest">History</th>
@@ -546,6 +564,21 @@ export default function AdminLogin() {
                             <span className="text-primary font-bold">{user.username || "Unknown"}</span>
                             <span className="text-[10px] text-primary/40 font-mono">{user.email}</span>
                             <span className="text-[10px] text-primary/20 font-mono">{user.id}</span>
+                          </div>
+                        </td>
+                        <td className="p-4">
+                          <div className="flex flex-col gap-1">
+                            <span className="text-[10px] font-mono text-primary/60">{user.lastIp || "NO_IP"}</span>
+                            {user.lastIp && (
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                className={`h-6 text-[9px] px-2 border ${user.isIpBlocked ? 'border-red-500 text-red-500' : 'border-primary/20 text-primary/40'}`}
+                                onClick={() => blockIpMutation.mutate({ userId: user.id, blockIp: !user.isIpBlocked })}
+                              >
+                                {user.isIpBlocked ? "IP_BLOCKED" : "BLOCK_IP"}
+                              </Button>
+                            )}
                           </div>
                         </td>
                         <td className="p-4">
@@ -629,7 +662,7 @@ export default function AdminLogin() {
                       <span className="text-primary uppercase tracking-widest bg-primary/10 px-2 py-0.5 rounded-sm">{log.service} MODULE</span>
                       <span className="text-primary/40 uppercase tracking-tighter">{new Date(log.createdAt || "").toLocaleString()}</span>
                     </div>
-                    <div className="text-xs break-all text-primary/80 bg-primary/5 p-3 border border-primary/5 font-mono leading-relaxed">
+                    <div className="text-xs break-all text-primary/80 bg-primary/5 p-3 border border-primary/5 font-mono leading-relaxed cursor-pointer hover:bg-primary/10" onClick={() => setSelectedLog(log)}>
                       <span className="text-primary/30 mr-2">QUERY &gt;</span> {log.query}
                     </div>
                   </div>
@@ -641,6 +674,36 @@ export default function AdminLogin() {
                 <p className="text-center font-bold tracking-widest uppercase">No Activity Detected</p>
               </div>
             )}
+          </ScrollArea>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!selectedLog} onOpenChange={() => setSelectedLog(null)}>
+        <DialogContent className="bg-zinc-950 border-primary/20 text-primary font-mono max-w-3xl">
+          <DialogHeader>
+            <DialogTitle className="uppercase tracking-widest">QUERY_FULL_DETAILS</DialogTitle>
+          </DialogHeader>
+          <ScrollArea className="h-[500px] mt-4 p-4 bg-black/50 border border-primary/10 rounded">
+            <div className="space-y-4">
+              <div>
+                <h4 className="text-[10px] text-primary/40 uppercase mb-1">Service</h4>
+                <div className="text-sm font-bold text-primary">{selectedLog?.service}</div>
+              </div>
+              <div>
+                <h4 className="text-[10px] text-primary/40 uppercase mb-1">Query</h4>
+                <div className="text-sm font-bold text-primary break-all">{selectedLog?.query}</div>
+              </div>
+              <div>
+                <h4 className="text-[10px] text-primary/40 uppercase mb-1">Timestamp</h4>
+                <div className="text-sm text-primary/60">{selectedLog?.createdAt && new Date(selectedLog.createdAt).toLocaleString()}</div>
+              </div>
+              <div>
+                <h4 className="text-[10px] text-primary/40 uppercase mb-1">Raw Result</h4>
+                <pre className="text-xs text-primary/80 whitespace-pre-wrap bg-primary/5 p-4 border border-primary/10 rounded">
+                  {JSON.stringify(selectedLog?.result, null, 2)}
+                </pre>
+              </div>
+            </div>
           </ScrollArea>
         </DialogContent>
       </Dialog>

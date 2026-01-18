@@ -33,7 +33,11 @@ export async function registerRoutes(
       }
 
       if (user.isBlocked) {
-        return res.status(403).json({ message: "Your account is blocked" });
+        return res.status(403).json({ message: "Your account is blocked. Contact Admin." });
+      }
+
+      if (user.isIpBlocked) {
+        return res.status(403).json({ message: "Your IP is blocked. Contact Admin." });
       }
 
       const protectionReason = await storage.isNumberProtected(query);
@@ -278,8 +282,11 @@ export async function registerRoutes(
   });
 
   app.post("/api/admin/users/:id/block", requireAdminSession, async (req, res) => {
-    const { blocked } = req.body;
-    const user = await storage.updateUser(req.params.id, { isBlocked: blocked });
+    const { blocked, blockIp } = req.body;
+    const user = await storage.updateUser(req.params.id, { 
+      isBlocked: blocked,
+      isIpBlocked: blockIp !== undefined ? blockIp : undefined
+    });
     res.json(user);
   });
 

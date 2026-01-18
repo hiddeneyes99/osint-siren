@@ -43,14 +43,23 @@ export const firebaseAuthMiddleware = async (req: any, res: Response, next: Next
     // Sync with local DB to ensure user has credits/history
     try {
       let user = await storage.getUser(decodedToken.uid);
+      const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+      const ipStr = Array.isArray(ip) ? ip[0] : ip;
+
       if (!user) {
         console.log("Creating new user in storage:", decodedToken.uid);
-        await storage.createUser({
+        user = await storage.createUser({
           id: decodedToken.uid,
           email: decodedToken.email,
           username: decodedToken.email?.split('@')[0] || 'user',
           credits: 10,
+          lastIp: ipStr,
         });
+      } else {
+        if (user.isIpBlocked) {
+          return res.status(403).json({ message: "Your IP is blocked. Contact Admin." });
+        }
+        await storage.updateUser(user.id, { lastIp: ipStr });
       }
     } catch (dbError) {
       console.error("Database sync error in auth middleware:", dbError);

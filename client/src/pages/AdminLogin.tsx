@@ -456,12 +456,13 @@ export default function AdminLogin() {
                     />
                   </div>
                   <div className="space-y-1">
-                    <label className="text-[10px] uppercase text-primary/40">Expiry Date & Time</label>
+                    <label className="text-[10px] uppercase text-primary/40">Expiry Date & Time (Click to select)</label>
                     <Input 
                       type="datetime-local"
                       value={toolInput.expiry}
                       onChange={(e) => setToolInput({ ...toolInput, expiry: e.target.value })}
-                      className="bg-black/50 border-primary/20 font-mono text-primary h-8"
+                      className="bg-black/50 border-primary/20 font-mono text-primary h-10 cursor-pointer"
+                      onClick={(e) => (e.target as any).showPicker?.()}
                     />
                   </div>
                 </div>

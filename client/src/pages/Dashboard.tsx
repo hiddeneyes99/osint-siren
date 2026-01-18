@@ -51,6 +51,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { AuthModal } from "@/components/AuthModal";
 import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
 import sirenSound from "@assets/siren_1768712570112.mp3";
 
 export default function Dashboard() {
@@ -197,22 +198,18 @@ export default function Dashboard() {
     if (!redeemCode) return;
     setIsRedeeming(true);
     try {
-      const res = await fetch("/api/user/redeem", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code: redeemCode }),
-      });
+      const res = await apiRequest("POST", "/api/user/redeem", { code: redeemCode });
       const data = await res.json();
-      if (res.ok) {
-        toast({ title: "SUCCESS", description: data.message });
-        setRedeemCode("");
-        setIsRedeemModalOpen(false);
-        queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
-      } else {
-        toast({ variant: "destructive", title: "ERROR", description: data.message });
-      }
-    } catch (error) {
-      toast({ variant: "destructive", title: "ERROR", description: "System failure" });
+      toast({ title: "SUCCESS", description: data.message });
+      setRedeemCode("");
+      setIsRedeemModalOpen(false);
+      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+    } catch (error: any) {
+      toast({ 
+        variant: "destructive", 
+        title: "ERROR", 
+        description: error.message || "System failure" 
+      });
     } finally {
       setIsRedeeming(false);
     }

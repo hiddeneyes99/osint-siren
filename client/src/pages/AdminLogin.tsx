@@ -216,7 +216,8 @@ export default function AdminLogin() {
   const filteredUsers = users?.filter(user => 
     user.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     user.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.username?.toLowerCase().includes(searchTerm.toLowerCase())
+    user.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    user.lastIp?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   if (!isLoggedIn) {

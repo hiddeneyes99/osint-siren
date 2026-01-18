@@ -67,6 +67,12 @@ export default function Dashboard() {
     refetchInterval: 5000, // Added polling to ensure history loads
   });
 
+  // Service Mutations
+  const mobileMutation = useMobileInfo();
+  const aadharMutation = useAadharInfo();
+  const vehicleMutation = useVehicleInfo();
+  const ipMutation = useIpInfo();
+
   // Watch for successful mutations and check credits
   useEffect(() => {
     const mutations = [mobileMutation, aadharMutation, vehicleMutation, ipMutation];
@@ -76,12 +82,6 @@ export default function Dashboard() {
       setShowLowCreditAlert(true);
     }
   }, [mobileMutation.isSuccess, aadharMutation.isSuccess, vehicleMutation.isSuccess, ipMutation.isSuccess, user?.credits]);
-
-  // Service Mutations
-  const mobileMutation = useMobileInfo();
-  const aadharMutation = useAadharInfo();
-  const vehicleMutation = useVehicleInfo();
-  const ipMutation = useIpInfo();
 
   // Watch for protected number errors
   useEffect(() => {

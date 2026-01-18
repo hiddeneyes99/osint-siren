@@ -1,7 +1,7 @@
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
 import { CyberButton } from "@/components/CyberButton";
-import { Terminal, Shield, LogOut, User } from "lucide-react";
+import { Terminal, Shield, LogOut, User, CreditCard } from "lucide-react";
 import { useState } from "react";
 import { AuthModal } from "./AuthModal";
 

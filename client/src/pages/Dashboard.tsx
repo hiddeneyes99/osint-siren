@@ -75,13 +75,36 @@ export default function Dashboard() {
 
   // Watch for successful mutations and check credits
   useEffect(() => {
-    const mutations = [mobileMutation, aadharMutation, vehicleMutation, ipMutation];
-    const anySuccess = mutations.some(m => m.isSuccess);
-    
-    if (anySuccess && user && user.credits < 10) {
+    const mutations = [
+      mobileMutation,
+      aadharMutation,
+      vehicleMutation,
+      ipMutation,
+    ];
+    const anySuccess = mutations.some((m) => m.isSuccess);
+    const anyError = mutations.some((m) => m.isError);
+
+    if ((anySuccess || anyError) && user && user.credits < 10) {
       setShowLowCreditAlert(true);
     }
-  }, [mobileMutation.isSuccess, aadharMutation.isSuccess, vehicleMutation.isSuccess, ipMutation.isSuccess, user?.credits]);
+  }, [
+    mobileMutation.isSuccess,
+    aadharMutation.isSuccess,
+    vehicleMutation.isSuccess,
+    ipMutation.isSuccess,
+    mobileMutation.isError,
+    aadharMutation.isError,
+    vehicleMutation.isError,
+    ipMutation.isError,
+    user?.credits,
+  ]);
+
+  // Initial check for 0 credits
+  useEffect(() => {
+    if (user && user.credits === 0) {
+      setShowLowCreditAlert(true);
+    }
+  }, [user?.credits]);
 
   // Watch for protected number errors
   useEffect(() => {
@@ -343,25 +366,27 @@ export default function Dashboard() {
       <Dialog open={showLowCreditAlert} onOpenChange={setShowLowCreditAlert}>
         <DialogContent className="bg-black border-primary/50 text-white font-mono max-w-sm">
           <DialogHeader>
-            <DialogTitle className="text-primary flex items-center gap-2">
-              <AlertTriangle className="w-5 h-5 text-yellow-500" />
-              SYSTEM ALERT
+            <DialogTitle className="text-primary flex items-center gap-2 text-lg">
+              <AlertTriangle className="w-6 h-6 text-yellow-500 animate-bounce" />
+              CRITICAL: SYSTEM ALERT
             </DialogTitle>
-            <DialogDescription className="text-primary/80 pt-4 leading-relaxed">
-              ⚠️ Alert! Your credit balance is running low. Please recharge soon to avoid service interruption.
+            <DialogDescription className="text-white pt-4 leading-relaxed text-base border-t border-primary/20 mt-2">
+              <span className="text-yellow-400 font-bold">⚠️ ACCESS RESTRICTED!</span><br/>
+              Your credit balance is <span className="text-primary font-bold">{user?.credits || 0}</span>. 
+              Please recharge immediately to restore full system access and avoid service interruption.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="flex-col sm:flex-row gap-2 mt-4">
-            <CyberButton 
-              variant="outline" 
-              className="w-full sm:flex-1 h-9" 
+            <CyberButton
+              variant="outline"
+              className="w-full sm:flex-1 h-9"
               onClick={() => setShowLowCreditAlert(false)}
             >
-              OK
+              CONTINUE
             </CyberButton>
-            <CyberButton 
-              variant="primary" 
-              className="w-full sm:flex-1 h-9 shadow-[0_0_10px_rgba(0,255,0,0.3)]" 
+            <CyberButton
+              variant="primary"
+              className="w-full sm:flex-1 h-9 shadow-[0_0_10px_rgba(0,255,0,0.3)]"
               onClick={() => {
                 setShowLowCreditAlert(false);
                 window.open("https://t.me/Blackeyes_0", "_blank");

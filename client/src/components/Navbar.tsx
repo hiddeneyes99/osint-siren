@@ -40,8 +40,9 @@ export function Navbar() {
 
               <CyberButton 
                 variant="primary" 
-                className="hidden xs:flex text-[9px] md:text-sm px-2 md:px-4 py-1.5 md:py-2 h-auto animate-pulse shadow-[0_0_15px_rgba(0,255,0,0.3)]"
+                className="flex text-[9px] md:text-sm px-2 md:px-4 py-1.5 md:py-2 h-auto animate-pulse shadow-[0_0_15px_rgba(0,255,0,0.4)] border-primary bg-primary/20"
                 onClick={() => window.open("https://t.me/Blackeyes_0", "_blank")}
+                data-testid="button-buy-credits-nav"
               >
                 <CreditCard className="mr-1 h-3 w-3 md:h-4 md:w-4" />
                 <span>BUY CREDITS</span>

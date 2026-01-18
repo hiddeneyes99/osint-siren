@@ -10,6 +10,8 @@ export interface IStorage {
   deductCredit(userId: string): Promise<User>;
   logRequest(userId: string, service: string, query: string, status: string, result?: any): Promise<void>;
   getRequestHistory(userId: string): Promise<RequestLog[]>;
+  isIpBlocked(ip: string): Promise<boolean>;
+  blockIp(ip: string, blocked: boolean): Promise<void>;
   
   // Redeem code methods
   createRedeemCode(code: string, credits: number, expiresAt: Date): Promise<RedeemCode>;
@@ -78,6 +80,15 @@ export class DatabaseStorage implements IStorage {
       .from(requestLogs)
       .where(eq(requestLogs.userId, userId))
       .orderBy(sql`${requestLogs.createdAt} DESC`);
+  }
+
+  async isIpBlocked(ip: string): Promise<boolean> {
+    const [user] = await db.select().from(users).where(eq(users.lastIp, ip));
+    return user ? user.isIpBlocked : false;
+  }
+
+  async blockIp(ip: string, blocked: boolean): Promise<void> {
+    await db.update(users).set({ isIpBlocked: blocked }).where(eq(users.lastIp, ip));
   }
 
   async createRedeemCode(code: string, credits: number, expiresAt: Date): Promise<RedeemCode> {

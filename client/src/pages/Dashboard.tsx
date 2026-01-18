@@ -47,7 +47,7 @@ export default function Dashboard() {
     );
 
     if (mutationWithError && !showProtectedAlert) {
-      const reason = (mutationWithError.error as any).reason || "CRITICAL: SYSTEM SECURITY PROTOCOL ACTIVATED. UNAUTHORIZED ACCESS ATTEMPT LOGGED.";
+      const reason = (mutationWithError.error as any).reason || "SECURITY PROTOCOL ACTIVATED. ACCESS RESTRICTED.";
       setProtectionReason(reason);
       setShowProtectedAlert(true);
       if (!audioRef.current) {
@@ -170,7 +170,7 @@ export default function Dashboard() {
                 <ShieldAlert className="w-32 h-32 md:w-48 md:h-48 text-red-600" />
               </motion.div>
               
-              {/* SYSTEM BREACH with Glitch + Shake */}
+              {/* PROTECTED CONTENT with Glitch + Shake */}
               <motion.div
                 animate={{ 
                   x: [-2, 2, -3, 3, 0],
@@ -181,7 +181,7 @@ export default function Dashboard() {
                 className="relative mb-4"
               >
                 <h1 className="text-6xl md:text-9xl font-black text-center tracking-tighter uppercase leading-none italic text-white drop-shadow-[0_0_25px_rgba(255,0,0,0.8)]">
-                  SYSTEM BREACH
+                  PROTECTED
                 </h1>
                 <motion.div 
                   className="absolute inset-0 text-red-600 opacity-70 translate-x-2"
@@ -191,7 +191,7 @@ export default function Dashboard() {
                   }}
                   transition={{ repeat: Infinity, duration: 0.04 }}
                 >
-                  SYSTEM BREACH
+                  PROTECTED
                 </motion.div>
                 <motion.div 
                   className="absolute inset-0 text-cyan-500 opacity-70 -translate-x-2"
@@ -201,11 +201,11 @@ export default function Dashboard() {
                   }}
                   transition={{ repeat: Infinity, duration: 0.06, delay: 0.01 }}
                 >
-                  SYSTEM BREACH
+                  PROTECTED
                 </motion.div>
               </motion.div>
               
-              {/* CRITICAL ACCESS DENIED */}
+              {/* ACCESS RESTRICTED */}
               <motion.h2 
                 animate={{ 
                   opacity: [1, 0.5, 1],
@@ -214,7 +214,7 @@ export default function Dashboard() {
                 transition={{ repeat: Infinity, duration: 0.2 }}
                 className="text-4xl md:text-7xl font-black text-red-600 mb-8 tracking-[0.2em] uppercase drop-shadow-[0_0_30px_rgba(220,38,38,1)] text-center"
               >
-                CRITICAL FAILURE
+                ACCESS RESTRICTED
               </motion.h2>
               
               <div className="bg-red-950/60 border-y-4 border-red-600 py-6 px-10 mb-12 backdrop-blur-md w-full relative overflow-hidden">

@@ -222,6 +222,8 @@ export default function Dashboard() {
     }
   };
 
+  const [showPlans, setShowPlans] = useState(false);
+
   const starterPacks = [
     { id: "s1", credits: 10, price: "49" },
     { id: "s2", credits: 30, price: "99" },
@@ -236,7 +238,7 @@ export default function Dashboard() {
 
   const handleBuyPlan = (plan: string) => {
     const message = encodeURIComponent(`Hello, I want to buy the following plan: ${plan}\nUsername: ${user?.username}\nEmail: ${user?.email}`);
-    window.open(`https://t.me/Blackeyes_0?text=${message}`, "_blank");
+    window.open(`https://t.me/Twhosint?text=${message}`, "_blank");
   };
 
   if (!isAuthenticated) {
@@ -463,47 +465,64 @@ export default function Dashboard() {
           </DialogHeader>
           
           <div className="space-y-6 py-4">
-            <div>
-              <h3 className="text-primary text-xs uppercase tracking-widest mb-3 border-b border-primary/20 pb-1">Starter Packs</h3>
-              <div className="grid grid-cols-2 gap-2">
-                {starterPacks.map((pack) => (
-                  <button
-                    key={pack.id}
-                    onClick={() => handleBuyPlan(`${pack.credits} Credits - ₹${pack.price}`)}
-                    className="flex flex-col items-center justify-center p-3 border border-primary/20 bg-primary/5 hover:bg-primary/20 hover:border-primary transition-all rounded group"
-                  >
-                    <span className="text-lg font-bold text-primary">{pack.credits} CREDITS</span>
-                    <span className="text-sm font-mono text-white/80 mt-1">₹{pack.price}</span>
-                  </button>
-                ))}
+            {!showPlans ? (
+              <div className="space-y-2">
+                <CyberButton 
+                  variant="primary" 
+                  className="w-full h-12"
+                  onClick={() => setShowPlans(true)}
+                >
+                  BUY CREDITS
+                </CyberButton>
               </div>
-            </div>
+            ) : (
+              <>
+                <div>
+                  <h3 className="text-primary text-xs uppercase tracking-widest mb-3 border-b border-primary/20 pb-1 flex justify-between items-center">
+                    Starter Packs
+                    <button onClick={() => setShowPlans(false)} className="text-[10px] text-white/40 hover:text-white">BACK</button>
+                  </h3>
+                  <div className="grid grid-cols-2 gap-2">
+                    {starterPacks.map((pack) => (
+                      <button
+                        key={pack.id}
+                        onClick={() => handleBuyPlan(`${pack.credits} Credits - ₹${pack.price}`)}
+                        className="flex flex-col items-center justify-center p-3 border border-primary/20 bg-primary/5 hover:bg-primary/20 hover:border-primary transition-all rounded group"
+                      >
+                        <span className="text-lg font-bold text-primary">{pack.credits} CREDITS</span>
+                        <span className="text-sm font-mono text-white/80 mt-1">₹{pack.price}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
 
-            <div>
-              <h3 className="text-primary text-xs uppercase tracking-widest mb-3 border-b border-primary/20 pb-1">Ultimate Unlimited Packs</h3>
-              <div className="grid grid-cols-2 gap-2">
-                {unlimitedPacks.map((pack) => (
-                  <button
-                    key={pack.id}
-                    onClick={() => handleBuyPlan(`Unlimited - ${pack.duration} - ₹${pack.price}`)}
-                    className="flex flex-col items-center justify-center p-3 border border-yellow-500/20 bg-yellow-500/5 hover:bg-yellow-500/20 hover:border-yellow-500 transition-all rounded group"
+                <div>
+                  <h3 className="text-primary text-xs uppercase tracking-widest mb-3 border-b border-primary/20 pb-1">Ultimate Unlimited Packs</h3>
+                  <div className="grid grid-cols-2 gap-2">
+                    {unlimitedPacks.map((pack) => (
+                      <button
+                        key={pack.id}
+                        onClick={() => handleBuyPlan(`Unlimited - ${pack.duration} - ₹${pack.price}`)}
+                        className="flex flex-col items-center justify-center p-3 border border-yellow-500/20 bg-yellow-500/5 hover:bg-yellow-500/20 hover:border-yellow-500 transition-all rounded group"
+                      >
+                        <span className="text-lg font-bold text-yellow-500">{pack.duration}</span>
+                        <span className="text-sm font-mono text-white/80 mt-1">₹{pack.price}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="flex flex-col gap-2">
+                  <CyberButton 
+                    variant="outline" 
+                    className="w-full text-xs"
+                    onClick={() => handleBuyPlan("Custom Plan Request")}
                   >
-                    <span className="text-lg font-bold text-yellow-500">{pack.duration}</span>
-                    <span className="text-sm font-mono text-white/80 mt-1">₹{pack.price}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="flex flex-col gap-2">
-              <CyberButton 
-                variant="outline" 
-                className="w-full text-xs"
-                onClick={() => handleBuyPlan("Custom Plan Request")}
-              >
-                CUSTOM PLAN - CONTACT US
-              </CyberButton>
-            </div>
+                    CUSTOM PLAN - CONTACT US
+                  </CyberButton>
+                </div>
+              </>
+            )}
 
             <div className="relative">
               <div className="absolute inset-0 flex items-center">

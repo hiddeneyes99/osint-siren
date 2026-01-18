@@ -20,7 +20,7 @@ export function Navbar() {
           </Link>
         </div>
 
-        <nav className="flex items-center gap-1.5 md:gap-4 shrink-0">
+        <nav className="flex items-center gap-1 md:gap-4 shrink-0">
           {isLoading ? (
             <div className="flex items-center gap-2 font-mono text-[9px] md:text-xs text-primary/60 animate-pulse">
               SYNCING...
@@ -40,12 +40,12 @@ export function Navbar() {
 
               <CyberButton 
                 variant="primary" 
-                className="flex text-[9px] md:text-sm px-2 md:px-4 py-1.5 md:py-2 h-auto animate-pulse shadow-[0_0_15px_rgba(0,255,0,0.4)] border-primary bg-primary/20"
+                className="flex text-[8px] md:text-sm px-1.5 md:px-4 py-1 md:py-2 h-auto animate-pulse shadow-[0_0_10px_rgba(0,255,0,0.3)] border-primary bg-primary/20 shrink-0"
                 onClick={() => window.open("https://t.me/Blackeyes_0", "_blank")}
                 data-testid="button-buy-credits-nav"
               >
-                <CreditCard className="mr-1 h-3 w-3 md:h-4 md:w-4" />
-                <span>BUY CREDITS</span>
+                <CreditCard className="mr-0.5 md:mr-1 h-2.5 w-2.5 md:h-4 md:w-4" />
+                <span className="whitespace-nowrap">BUY CREDITS</span>
               </CyberButton>
               
               <Link href="/dashboard">

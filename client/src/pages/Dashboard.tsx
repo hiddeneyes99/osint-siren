@@ -497,13 +497,10 @@ export default function Dashboard() {
                   </CyberButton>
                 </div>
               </div>
-              <div className="space-y-1 md:space-y-2 text-[10px] md:text-xs font-mono text-muted-foreground mt-4">
+              <div className="space-y-1 md:space-y-2 text-[10px] md:text-xs font-mono text-muted-foreground mt-4 border-t border-primary/20 pt-4">
                 <div className="flex justify-between">
                   <span>UPTIME:</span>
                   <span className="text-primary font-bold">99.9%</span>
-                </div>
-              </div>
-                  <span>99.9%</span>
                 </div>
               </div>
             </div>

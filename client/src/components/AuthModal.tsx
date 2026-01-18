@@ -103,6 +103,23 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
   };
 
   const handleGoogleLogin = async () => {
+    if (!isLogin) {
+      const termsAccepted = form.getValues("termsAccepted");
+      const privacyAccepted = form.getValues("privacyAccepted");
+
+      if (!termsAccepted || !privacyAccepted) {
+        toast({
+          title: "SIGNUP_RESTRICTED",
+          description: "PLEASE ACCEPT TERMS AND PRIVACY POLICY BEFORE INITIALIZING GOOGLE_AUTH",
+          variant: "destructive",
+        });
+        
+        // Trigger validation errors on the form fields
+        form.trigger(["termsAccepted", "privacyAccepted"]);
+        return;
+      }
+    }
+
     try {
       await googleLogin();
       onClose();

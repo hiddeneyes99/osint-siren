@@ -27,14 +27,14 @@ export function Navbar() {
             </div>
           ) : user ? (
             <>
-              <div className="hidden sm:flex items-center gap-2 md:gap-4 mr-1 md:mr-4 border-r border-primary/20 pr-1 md:pr-4">
+              <div className="flex items-center gap-2 md:gap-4 mr-1 md:mr-4 border-r border-primary/20 pr-1 md:pr-4">
                 <div className="flex flex-col items-end">
                   <span className="text-[8px] md:text-[10px] text-primary/60 font-mono">USER</span>
-                  <span className="font-mono text-[10px] md:text-xs text-primary truncate max-w-[60px] md:max-w-none">{user.username}</span>
+                  <span className="font-mono text-[8px] md:text-xs text-primary truncate max-w-[50px] md:max-w-none">{user.username}</span>
                 </div>
                 <div className="flex flex-col items-end">
                   <span className="text-[8px] md:text-[10px] text-primary/60 font-mono">CREDITS</span>
-                  <span className="font-mono text-[10px] md:text-xs font-bold text-primary text-glow">{user.credits}</span>
+                  <span className="font-mono text-[8px] md:text-xs font-bold text-primary text-glow">{user.credits}</span>
                 </div>
               </div>
               

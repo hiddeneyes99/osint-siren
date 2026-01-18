@@ -26,6 +26,7 @@ export const users = pgTable("users", {
   role: text("role").notNull().default("user"), // "user" or "admin"
   isBlocked: boolean("is_blocked").notNull().default(false),
   credits: integer("credits").notNull().default(10),
+  creditsExpiry: timestamp("credits_expiry"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

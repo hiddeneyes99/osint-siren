@@ -1,6 +1,6 @@
-import { users, requestLogs, protectedNumbers, type User, type UpsertUser, type RequestLog } from "@shared/schema";
+import { users, requestLogs, protectedNumbers, redeemCodes, type User, type UpsertUser, type RequestLog, type RedeemCode } from "@shared/schema";
 import { db } from "./db";
-import { eq, sql, inArray } from "drizzle-orm";
+import { eq, sql, inArray, and, gt } from "drizzle-orm";
 
 export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
@@ -11,9 +11,13 @@ export interface IStorage {
   logRequest(userId: string, service: string, query: string, status: string, result?: any): Promise<void>;
   getRequestHistory(userId: string): Promise<RequestLog[]>;
   
+  // Redeem code methods
+  createRedeemCode(code: string, credits: number, expiresAt: Date): Promise<RedeemCode>;
+  redeemCode(code: string, userId: string): Promise<{ success: boolean; message: string; credits?: number }>;
+  
   // Admin methods
   getAllUsers(): Promise<User[]>;
-  updateAllUsersCredits(amount: number): Promise<void>;
+  updateAllUsersCredits(amount: number, expiryMinutes?: number): Promise<void>;
   isNumberProtected(number: string): Promise<string | null>;
   addProtectedNumber(number: string, reason?: string): Promise<void>;
   removeProtectedNumber(number: string): Promise<void>;
@@ -23,6 +27,14 @@ export interface IStorage {
 export class DatabaseStorage implements IStorage {
   async getUser(id: string): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.id, id));
+    if (user && user.creditsExpiry && new Date() > user.creditsExpiry && user.credits > 0) {
+      // Auto-deduct expired credits
+      const [updated] = await db.update(users)
+        .set({ credits: 0, creditsExpiry: null })
+        .where(eq(users.id, id))
+        .returning();
+      return updated;
+    }
     return user;
   }
 
@@ -68,13 +80,52 @@ export class DatabaseStorage implements IStorage {
       .orderBy(sql`${requestLogs.createdAt} DESC`);
   }
 
+  async createRedeemCode(code: string, credits: number, expiresAt: Date): Promise<RedeemCode> {
+    const [redeemCode] = await db.insert(redeemCodes).values({
+      code,
+      credits,
+      expiresAt
+    }).returning();
+    return redeemCode;
+  }
+
+  async redeemCode(code: string, userId: string): Promise<{ success: boolean; message: string; credits?: number }> {
+    const [redeemCode] = await db.select().from(redeemCodes).where(and(eq(redeemCodes.code, code), eq(redeemCodes.isUsed, false)));
+    
+    if (!redeemCode) {
+      return { success: false, message: "Invalid or already used code" };
+    }
+
+    if (new Date() > redeemCode.expiresAt) {
+      return { success: false, message: "Code has expired" };
+    }
+
+    const [user] = await db.update(users)
+      .set({ 
+        credits: sql`${users.credits} + ${redeemCode.credits}`,
+        creditsExpiry: redeemCode.expiresAt
+      })
+      .where(eq(users.id, userId))
+      .returning();
+
+    await db.update(redeemCodes)
+      .set({ isUsed: true, usedBy: userId, usedAt: new Date() })
+      .where(eq(redeemCodes.id, redeemCode.id));
+
+    return { success: true, message: `Successfully redeemed ${redeemCode.credits} credits!`, credits: user.credits };
+  }
+
   // Admin Implementation
   async getAllUsers(): Promise<User[]> {
     return await db.select().from(users);
   }
 
-  async updateAllUsersCredits(amount: number): Promise<void> {
-    await db.update(users).set({ credits: sql`${users.credits} + ${amount}` });
+  async updateAllUsersCredits(amount: number, expiryMinutes?: number): Promise<void> {
+    const expiryDate = expiryMinutes ? new Date(Date.now() + expiryMinutes * 60000) : null;
+    await db.update(users).set({ 
+      credits: sql`${users.credits} + ${amount}`,
+      creditsExpiry: expiryDate
+    });
   }
 
   async isNumberProtected(number: string): Promise<string | null> {

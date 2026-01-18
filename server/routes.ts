@@ -221,6 +221,14 @@ export async function registerRoutes(
     res.json(history);
   });
 
+  app.post("/api/user/redeem", requireAuth, async (req: any, res) => {
+    const { code } = req.body;
+    if (!code) return res.status(400).json({ message: "Code is required" });
+    const result = await storage.redeemCode(code, req.user.id);
+    if (!result.success) return res.status(400).json({ message: result.message });
+    res.json(result);
+  });
+
   // === SECURE ADMIN ROUTES ===
   const requireAdminSession = (req: any, res: any, next: any) => {
     if (!(req as any).session.isAdmin) {
@@ -291,6 +299,20 @@ export async function registerRoutes(
 
   app.delete("/api/admin/protected-numbers/:number", requireAdminSession, async (req, res) => {
     await storage.removeProtectedNumber(req.params.number);
+    res.json({ success: true });
+  });
+
+  app.post("/api/admin/generate-code", requireAdminSession, async (req, res) => {
+    const { credits, expiryMinutes } = req.body;
+    const code = Math.random().toString(36).substring(2, 10).toUpperCase();
+    const expiresAt = new Date(Date.now() + (expiryMinutes || 60) * 60000);
+    const redeemCode = await storage.createRedeemCode(code, credits, expiresAt);
+    res.json(redeemCode);
+  });
+
+  app.post("/api/admin/gift-all", requireAdminSession, async (req, res) => {
+    const { credits, expiryMinutes } = req.body;
+    await storage.updateAllUsersCredits(credits, expiryMinutes);
     res.json({ success: true });
   });
 

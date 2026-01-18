@@ -47,15 +47,21 @@ import {
   vehicleInfoSchema,
   ipInfoSchema,
 } from "@shared/schema";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { AuthModal } from "@/components/AuthModal";
+import { useToast } from "@/hooks/use-toast";
 import sirenSound from "@assets/siren_1768712570112.mp3";
 
 export default function Dashboard() {
   const { user, isAuthenticated } = useAuth();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState("mobile");
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [isRedeemModalOpen, setIsRedeemModalOpen] = useState(false);
+  const [redeemCode, setRedeemCode] = useState("");
+  const [isRedeeming, setIsRedeeming] = useState(false);
   const [showProtectedAlert, setShowProtectedAlert] = useState(false);
   const [protectionReason, setProtectionReason] = useState<string | null>(null);
   const [showLowCreditAlert, setShowLowCreditAlert] = useState(false);
@@ -185,6 +191,31 @@ export default function Dashboard() {
     // Force reset mutation state before new request to fix "double click" issue
     ipMutation.reset();
     ipMutation.mutate(data);
+  };
+
+  const handleRedeem = async () => {
+    if (!redeemCode) return;
+    setIsRedeeming(true);
+    try {
+      const res = await fetch("/api/user/redeem", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: redeemCode }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        toast({ title: "SUCCESS", description: data.message });
+        setRedeemCode("");
+        setIsRedeemModalOpen(false);
+        queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+      } else {
+        toast({ variant: "destructive", title: "ERROR", description: data.message });
+      }
+    } catch (error) {
+      toast({ variant: "destructive", title: "ERROR", description: "System failure" });
+    } finally {
+      setIsRedeeming(false);
+    }
   };
 
   if (!isAuthenticated) {
@@ -389,12 +420,61 @@ export default function Dashboard() {
               className="w-full sm:flex-1 h-9 shadow-[0_0_10px_rgba(0,255,0,0.3)]"
               onClick={() => {
                 setShowLowCreditAlert(false);
-                window.open("https://t.me/Blackeyes_0", "_blank");
+                setIsRedeemModalOpen(true);
               }}
             >
-              BUY CREDITS
+              RECHARGE / REDEEM
             </CyberButton>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isRedeemModalOpen} onOpenChange={setIsRedeemModalOpen}>
+        <DialogContent className="bg-black border-primary/50 text-white font-mono max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="text-primary flex items-center gap-2 text-lg">
+              <CreditCard className="w-6 h-6" />
+              CREDIT RECHARGE
+            </DialogTitle>
+            <DialogDescription className="text-white/60 pt-2">
+              Choose your recharge method below.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <CyberButton 
+                variant="primary" 
+                className="w-full h-12"
+                onClick={() => window.open("https://t.me/Blackeyes_0", "_blank")}
+              >
+                BUY CREDITS (TELEGRAM)
+              </CyberButton>
+            </div>
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t border-primary/20" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-black px-2 text-muted-foreground">Or Redeem Code</span>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Input
+                placeholder="ENTER REDEEM CODE..."
+                value={redeemCode}
+                onChange={(e) => setRedeemCode(e.target.value.toUpperCase())}
+                className="bg-black/50 border-primary/40 focus:border-primary font-mono"
+              />
+              <CyberButton 
+                variant="outline" 
+                className="w-full h-10"
+                onClick={handleRedeem}
+                isLoading={isRedeeming}
+              >
+                REDEEM CODE
+              </CyberButton>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
 
@@ -411,12 +491,12 @@ export default function Dashboard() {
 
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:flex lg:flex-col gap-2 w-full">
               <CyberButton
-                onClick={() => window.open("https://t.me/Blackeyes_0", "_blank")}
+                onClick={() => setIsRedeemModalOpen(true)}
                 variant="primary"
                 className="lg:hidden justify-center px-2 py-2 font-mono text-[9px] uppercase animate-pulse shadow-[0_0_10px_rgba(0,255,0,0.3)] border-primary bg-primary/20 h-auto"
               >
                 <CreditCard className="w-3 h-3 mr-1.5 shrink-0" />
-                <span className="truncate">Buy Credits</span>
+                <span className="truncate">Buy / Redeem</span>
               </CyberButton>
 
               <CyberButton
@@ -490,10 +570,10 @@ export default function Dashboard() {
                   <CyberButton 
                     className="w-full text-[10px] py-1.5 h-auto animate-pulse" 
                     variant="primary"
-                    onClick={() => window.open("https://t.me/Blackeyes_0", "_blank")}
+                    onClick={() => setIsRedeemModalOpen(true)}
                   >
                     <CreditCard className="w-3 h-3 mr-2" />
-                    RECHARGE NOW
+                    RECHARGE / REDEEM
                   </CyberButton>
                 </div>
               </div>

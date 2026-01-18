@@ -22,10 +22,29 @@ export const protectedNumbers = pgTable("protected_numbers", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+export const redeemCodes = pgTable("redeem_codes", {
+  id: serial("id").primaryKey(),
+  code: text("code").notNull().unique(),
+  credits: integer("credits").notNull(),
+  expiresAt: timestamp("expires_at").notNull(),
+  isUsed: boolean("is_used").notNull().default(false),
+  usedBy: varchar("used_by").references(() => users.id),
+  usedAt: timestamp("used_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 // === SCHEMAS ===
 export const insertRequestLogSchema = createInsertSchema(requestLogs).omit({ 
   id: true, 
   createdAt: true 
+});
+
+export const insertRedeemCodeSchema = createInsertSchema(redeemCodes).omit({
+  id: true,
+  createdAt: true,
+  isUsed: true,
+  usedBy: true,
+  usedAt: true
 });
 
 export const insertProtectedNumberSchema = createInsertSchema(protectedNumbers).omit({
@@ -35,6 +54,7 @@ export const insertProtectedNumberSchema = createInsertSchema(protectedNumbers).
 
 // === TYPES ===
 export type RequestLog = typeof requestLogs.$inferSelect;
+export type RedeemCode = typeof redeemCodes.$inferSelect;
 
 // Service Request Schemas
 export const mobileInfoSchema = z.object({

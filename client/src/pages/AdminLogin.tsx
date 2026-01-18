@@ -43,7 +43,10 @@ export default function AdminLogin() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedUserHistory, setSelectedUserHistory] = useState<{ id: string; email: string } | null>(null);
   const [isProtectedModalOpen, setIsProtectedModalOpen] = useState(false);
+  const [isAdminToolsOpen, setIsAdminToolsOpen] = useState(false);
   const [protectedInput, setProtectedInput] = useState({ number: "", reason: "" });
+  const [toolInput, setToolInput] = useState({ credits: 10, expiry: 60 });
+  const [generatedCode, setGeneratedCode] = useState<string | null>(null);
 
   const form = useForm<LoginForm>({
     resolver: zodResolver(loginSchema),
@@ -61,6 +64,38 @@ export default function AdminLogin() {
   const { data: protectedNumbersList, refetch: refetchProtected } = useQuery<string[]>({
     queryKey: ["/api/admin/protected-numbers"],
     enabled: isLoggedIn,
+  });
+
+  const generateCodeMutation = useMutation({
+    mutationFn: async (data: { credits: number; expiryMinutes: number }) => {
+      const res = await fetch("/api/admin/generate-code", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new Error("Failed to generate code");
+      return res.json();
+    },
+    onSuccess: (data) => {
+      setGeneratedCode(data.code);
+      toast({ title: "REDEEM CODE GENERATED", description: `Code: ${data.code}` });
+    },
+  });
+
+  const giftAllMutation = useMutation({
+    mutationFn: async (data: { credits: number; expiryMinutes: number }) => {
+      const res = await fetch("/api/admin/gift-all", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new Error("Failed to gift credits");
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
+      toast({ title: "GIFTED ALL USERS", description: "Credits have been distributed." });
+    },
   });
 
   const addProtectedMutation = useMutation({
@@ -324,6 +359,19 @@ export default function AdminLogin() {
               <div className="text-2xl font-bold">{protectedNumbersList?.length || 0}</div>
             </CardContent>
           </Card>
+          <Card 
+            className="bg-zinc-950 border-primary/20 hover:border-primary/40 transition-colors cursor-pointer"
+            onClick={() => setIsAdminToolsOpen(true)}
+          >
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-bold flex items-center gap-2">
+                <Terminal className="w-4 h-4" /> ADMIN_TOOLS
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">UTILITIES</div>
+            </CardContent>
+          </Card>
         </div>
 
         <Dialog open={isProtectedModalOpen} onOpenChange={setIsProtectedModalOpen}>
@@ -379,6 +427,77 @@ export default function AdminLogin() {
                   )}
                 </div>
               </ScrollArea>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={isAdminToolsOpen} onOpenChange={setIsAdminToolsOpen}>
+          <DialogContent className="bg-zinc-950 border-primary/20 text-primary font-mono max-w-md">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2 uppercase tracking-widest text-primary">
+                <Terminal className="w-5 h-5" />
+                ADMIN_UTILITY_TERMINAL
+              </DialogTitle>
+              <DialogDescription className="text-primary/40 uppercase text-[10px] tracking-widest">
+                EXECUTE GLOBAL COMMANDS AND GENERATE KEYS
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-6 mt-4">
+              <div className="space-y-4 border border-primary/10 p-4 bg-black/50">
+                <h3 className="text-xs font-bold uppercase tracking-widest border-b border-primary/10 pb-2">Credit Distribution</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <label className="text-[10px] uppercase text-primary/40">Amount</label>
+                    <Input 
+                      type="number"
+                      value={toolInput.credits}
+                      onChange={(e) => setToolInput({ ...toolInput, credits: parseInt(e.target.value) || 0 })}
+                      className="bg-black/50 border-primary/20 font-mono text-primary h-8"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[10px] uppercase text-primary/40">Expiry (Mins)</label>
+                    <Input 
+                      type="number"
+                      value={toolInput.expiry}
+                      onChange={(e) => setToolInput({ ...toolInput, expiry: parseInt(e.target.value) || 0 })}
+                      className="bg-black/50 border-primary/20 font-mono text-primary h-8"
+                    />
+                  </div>
+                </div>
+                <div className="flex gap-2 pt-2">
+                  <Button 
+                    onClick={() => giftAllMutation.mutate({ credits: toolInput.credits, expiryMinutes: toolInput.expiry })}
+                    disabled={giftAllMutation.isPending}
+                    className="flex-1 bg-primary/20 border-primary/50 text-primary hover:bg-primary/30 h-9 text-[10px] uppercase tracking-widest"
+                  >
+                    GIFT ALL USERS
+                  </Button>
+                  <Button 
+                    onClick={() => generateCodeMutation.mutate({ credits: toolInput.credits, expiryMinutes: toolInput.expiry })}
+                    disabled={generateCodeMutation.isPending}
+                    className="flex-1 bg-zinc-800 border-zinc-700 text-white hover:bg-zinc-700 h-9 text-[10px] uppercase tracking-widest"
+                  >
+                    GENERATE CODE
+                  </Button>
+                </div>
+                {generatedCode && (
+                  <div className="mt-4 p-3 bg-primary/10 border border-primary/30 rounded text-center">
+                    <div className="text-[10px] uppercase text-primary/60 mb-1">Generated Code</div>
+                    <div className="text-lg font-bold tracking-[0.2em]">{generatedCode}</div>
+                    <Button 
+                      variant="ghost" 
+                      className="text-[10px] p-0 h-auto mt-1 text-primary/40 hover:text-primary"
+                      onClick={() => {
+                        navigator.clipboard.writeText(generatedCode);
+                        toast({ title: "COPIED TO CLIPBOARD" });
+                      }}
+                    >
+                      COPY_TO_CLIPBOARD
+                    </Button>
+                  </div>
+                )}
+              </div>
             </div>
           </DialogContent>
         </Dialog>

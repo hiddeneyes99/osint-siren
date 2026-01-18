@@ -632,6 +632,12 @@ export default function Dashboard() {
                   </span>
                 </div>
                 <div className="flex justify-between">
+                  <span>EXPIRY:</span>
+                  <span className="text-primary font-bold">
+                    {user?.creditsExpiry ? new Date(user.creditsExpiry).toLocaleDateString() : 'NEVER'}
+                  </span>
+                </div>
+                <div className="flex justify-between">
                   <span>CREDITS:</span>
                   <span className="text-primary font-bold">
                     {user?.credits ?? 0}

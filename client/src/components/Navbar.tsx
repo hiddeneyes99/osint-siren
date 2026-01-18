@@ -1,7 +1,7 @@
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
 import { CyberButton } from "@/components/CyberButton";
-import { Terminal, Shield, LogOut, User, CreditCard } from "lucide-react";
+import { Terminal, Shield, LogOut, User, CreditCard, Lock } from "lucide-react";
 import { useState } from "react";
 import { AuthModal } from "./AuthModal";
 
@@ -15,7 +15,7 @@ export function Navbar() {
       <div className="container flex h-16 items-center justify-between px-4">
         <div className="flex items-center gap-2">
           <Link href="/" className="flex items-center gap-2 font-display text-lg md:text-xl font-bold tracking-wider text-primary hover:text-primary/80 transition-colors shrink-0">
-            <Terminal className="h-5 w-5 md:h-6 md:w-6" />
+            <img src="/favicon.png" className="h-5 w-5 md:h-6 md:w-6 rounded-sm" alt="Logo" />
             <span className="text-glow">TWH_OSINT</span>
           </Link>
         </div>
@@ -55,6 +55,13 @@ export function Navbar() {
                 </CyberButton>
               </Link>
               
+              <Link href="/privacy">
+                <CyberButton variant={location === "/privacy" ? "primary" : "ghost"} className="text-[9px] md:text-sm px-2 md:px-4 py-1.5 md:py-2 h-auto hidden md:flex">
+                  <Lock className="mr-1 h-3 w-3 md:h-4 md:w-4" />
+                  <span className="hidden xs:inline">PRIVACY</span>
+                </CyberButton>
+              </Link>
+
               <CyberButton 
                 variant="danger" 
                 className="text-[9px] md:text-sm px-2 md:px-4 py-1.5 md:py-2 h-auto"
@@ -66,11 +73,19 @@ export function Navbar() {
               </CyberButton>
             </>
           ) : (
-            <CyberButton variant="primary" className="text-[10px] md:text-sm px-3 md:px-6 py-2 h-auto" onClick={() => setIsAuthModalOpen(true)}>
-              <User className="mr-1 h-3 w-3 md:h-4 md:w-4" />
-              <span className="hidden xs:inline">ACCESS</span>
-              <span className="xs:hidden">LOGIN</span>
-            </CyberButton>
+            <div className="flex gap-2">
+              <Link href="/privacy" className="hidden md:block">
+                <CyberButton variant="ghost" className="text-[10px] uppercase">Privacy</CyberButton>
+              </Link>
+              <Link href="/terms" className="hidden md:block">
+                <CyberButton variant="ghost" className="text-[10px] uppercase">Terms</CyberButton>
+              </Link>
+              <CyberButton variant="primary" className="text-[10px] md:text-sm px-3 md:px-6 py-2 h-auto" onClick={() => setIsAuthModalOpen(true)}>
+                <User className="mr-1 h-3 w-3 md:h-4 md:w-4" />
+                <span className="hidden xs:inline">ACCESS</span>
+                <span className="xs:hidden">LOGIN</span>
+              </CyberButton>
+            </div>
           )}
         </nav>
       </div>

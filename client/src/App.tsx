@@ -7,6 +7,8 @@ import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
 import Dashboard from "@/pages/Dashboard";
 import AdminLogin from "@/pages/AdminLogin";
+import PrivacyPolicy from "@/pages/PrivacyPolicy";
+import TermsOfService from "@/pages/TermsOfService";
 import { MatrixBackground } from "@/components/MatrixBackground";
 
 function Router() {
@@ -16,6 +18,8 @@ function Router() {
       <Route path="/dashboard" component={Dashboard} />
       <Route path="/secret" component={AdminLogin} />
       <Route path="/admin" component={AdminLogin} />
+      <Route path="/privacy" component={PrivacyPolicy} />
+      <Route path="/terms" component={TermsOfService} />
       <Route component={NotFound} />
     </Switch>
   );

@@ -154,16 +154,36 @@ export default function Home() {
         </div>
       </main>
 
-      <footer className="border-t border-primary/20 py-4 md:py-6 bg-black/50">
-        <div className="container flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] md:text-xs font-mono text-muted-foreground px-4 text-center">
-          <p>© 2025 OSINT_TOTAL SYSTEM. ALL RIGHTS RESERVED.</p>
-          <div className="flex flex-wrap justify-center gap-3 md:gap-4">
-            <span>STATUS: ONLINE</span>
-            <span>LATENCY: 12ms</span>
-            <span>SECURE: YES</span>
-          </div>
-        </div>
-      </footer>
+          <footer className="border-t border-primary/20 py-8 bg-black/50">
+            <div className="container px-4">
+              <div className="flex flex-col md:flex-row justify-between items-center gap-6 mb-8">
+                <div className="flex flex-col items-center md:items-start gap-2">
+                  <div className="flex items-center gap-2 font-display text-xl font-bold tracking-wider text-primary">
+                    <img src="/favicon.png" className="h-6 w-6 rounded-sm" alt="Logo" />
+                    <span className="text-glow">TWH_OSINT</span>
+                  </div>
+                  <p className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest">Advanced Intelligence Systems</p>
+                </div>
+                <div className="flex gap-8">
+                  <div className="flex flex-col gap-2">
+                    <span className="text-[10px] font-bold text-primary uppercase tracking-widest mb-1">Legal</span>
+                    <Link href="/privacy" className="text-xs font-mono text-muted-foreground hover:text-primary transition-colors uppercase">Privacy Policy</Link>
+                    <Link href="/terms" className="text-xs font-mono text-muted-foreground hover:text-primary transition-colors uppercase">Terms of Service</Link>
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <span className="text-[10px] font-bold text-primary uppercase tracking-widest mb-1">System</span>
+                    <span className="text-xs font-mono text-muted-foreground uppercase">Status: Online</span>
+                    <span className="text-xs font-mono text-muted-foreground uppercase">Latency: 12ms</span>
+                  </div>
+                </div>
+              </div>
+              <div className="pt-8 border-t border-primary/10 text-center">
+                <p className="text-[10px] font-mono text-primary/20 uppercase tracking-widest">
+                  &copy; 2026 TWH OSINT INTELLIGENCE SYSTEMS. ALL RIGHTS RESERVED.
+                </p>
+              </div>
+            </div>
+          </footer>
     </div>
   );
 }

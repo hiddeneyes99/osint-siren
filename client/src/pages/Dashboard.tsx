@@ -27,6 +27,14 @@ import { CyberButton } from "@/components/CyberButton";
 import { CyberCard } from "@/components/CyberCard";
 import { TerminalOutput } from "@/components/TerminalOutput";
 import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import {
   useMobileInfo,
   useAadharInfo,
   useVehicleInfo,
@@ -50,6 +58,7 @@ export default function Dashboard() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [showProtectedAlert, setShowProtectedAlert] = useState(false);
   const [protectionReason, setProtectionReason] = useState<string | null>(null);
+  const [showLowCreditAlert, setShowLowCreditAlert] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const { data: history = [] } = useQuery<any[]>({
@@ -57,6 +66,16 @@ export default function Dashboard() {
     enabled: isAuthenticated,
     refetchInterval: 5000, // Added polling to ensure history loads
   });
+
+  // Watch for successful mutations and check credits
+  useEffect(() => {
+    const mutations = [mobileMutation, aadharMutation, vehicleMutation, ipMutation];
+    const anySuccess = mutations.some(m => m.isSuccess);
+    
+    if (anySuccess && user && user.credits < 10) {
+      setShowLowCreditAlert(true);
+    }
+  }, [mobileMutation.isSuccess, aadharMutation.isSuccess, vehicleMutation.isSuccess, ipMutation.isSuccess, user?.credits]);
 
   // Service Mutations
   const mobileMutation = useMobileInfo();
@@ -320,6 +339,39 @@ export default function Dashboard() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      <Dialog open={showLowCreditAlert} onOpenChange={setShowLowCreditAlert}>
+        <DialogContent className="bg-black border-primary/50 text-white font-mono max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="text-primary flex items-center gap-2">
+              <AlertTriangle className="w-5 h-5 text-yellow-500" />
+              SYSTEM ALERT
+            </DialogTitle>
+            <DialogDescription className="text-primary/80 pt-4 leading-relaxed">
+              ⚠️ Alert! Your credit balance is running low. Please recharge soon to avoid service interruption.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex-col sm:flex-row gap-2 mt-4">
+            <CyberButton 
+              variant="outline" 
+              className="w-full sm:flex-1 h-9" 
+              onClick={() => setShowLowCreditAlert(false)}
+            >
+              OK
+            </CyberButton>
+            <CyberButton 
+              variant="primary" 
+              className="w-full sm:flex-1 h-9 shadow-[0_0_10px_rgba(0,255,0,0.3)]" 
+              onClick={() => {
+                setShowLowCreditAlert(false);
+                window.open("https://t.me/Blackeyes_0", "_blank");
+              }}
+            >
+              BUY CREDITS
+            </CyberButton>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <main className="flex-1 container px-4 py-4 md:py-8">
         <div className="flex flex-col lg:flex-row gap-6 h-full">

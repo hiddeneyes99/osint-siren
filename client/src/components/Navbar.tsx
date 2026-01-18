@@ -29,23 +29,23 @@ export function Navbar() {
             <>
               <div className="flex items-center gap-2 md:gap-4 mr-1 md:mr-4 border-r border-primary/20 pr-1 md:pr-4">
                 <div className="flex flex-col items-end">
-                  <span className="text-[8px] md:text-[10px] text-primary/60 font-mono">USER</span>
+                  <span className="text-[8px] md:text-[10px] text-primary/60 font-mono text-glow">USER</span>
                   <span className="font-mono text-[8px] md:text-xs text-primary truncate max-w-[50px] md:max-w-none">{user.username}</span>
                 </div>
                 <div className="flex flex-col items-end">
-                  <span className="text-[8px] md:text-[10px] text-primary/60 font-mono">CREDITS</span>
+                  <span className="text-[8px] md:text-[10px] text-primary/60 font-mono text-glow">CREDITS</span>
                   <span className="font-mono text-[8px] md:text-xs font-bold text-primary text-glow">{user.credits}</span>
                 </div>
               </div>
 
               <CyberButton 
                 variant="primary" 
-                className="flex text-[8px] md:text-sm px-1.5 md:px-4 py-1 md:py-2 h-auto animate-pulse shadow-[0_0_10px_rgba(0,255,0,0.3)] border-primary bg-primary/20 shrink-0"
+                className="hidden md:flex text-sm px-4 py-2 h-auto animate-pulse shadow-[0_0_15px_rgba(0,255,0,0.4)] border-primary bg-primary/20"
                 onClick={() => window.open("https://t.me/Blackeyes_0", "_blank")}
                 data-testid="button-buy-credits-nav"
               >
-                <CreditCard className="mr-0.5 md:mr-1 h-2.5 w-2.5 md:h-4 md:w-4" />
-                <span className="whitespace-nowrap">BUY CREDITS</span>
+                <CreditCard className="mr-1 h-4 w-4" />
+                <span>BUY CREDITS</span>
               </CyberButton>
               
               <Link href="/dashboard">

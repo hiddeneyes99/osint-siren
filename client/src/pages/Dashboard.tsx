@@ -411,6 +411,15 @@ export default function Dashboard() {
 
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:flex lg:flex-col gap-2 w-full">
               <CyberButton
+                onClick={() => window.open("https://t.me/Blackeyes_0", "_blank")}
+                variant="primary"
+                className="lg:hidden justify-center px-2 py-2 font-mono text-[9px] uppercase animate-pulse shadow-[0_0_10px_rgba(0,255,0,0.3)] border-primary bg-primary/20 h-auto"
+              >
+                <CreditCard className="w-3 h-3 mr-1.5 shrink-0" />
+                <span className="truncate">Buy Credits</span>
+              </CyberButton>
+
+              <CyberButton
                 onClick={() => setActiveTab("mobile")}
                 variant={activeTab === "mobile" ? "primary" : "outline"}
                 className="justify-start px-2 md:px-4 py-2 md:py-3 font-mono text-[9px] md:text-sm uppercase transition-all h-auto"
@@ -475,10 +484,25 @@ export default function Dashboard() {
                 </div>
                 <div className="flex justify-between">
                   <span>SERVER:</span>
-                  <span className="text-green-500">ONLINE</span>
+                  <span className="text-green-500 font-bold">ONLINE</span>
                 </div>
+                <div className="pt-2">
+                  <CyberButton 
+                    className="w-full text-[10px] py-1.5 h-auto animate-pulse" 
+                    variant="primary"
+                    onClick={() => window.open("https://t.me/Blackeyes_0", "_blank")}
+                  >
+                    <CreditCard className="w-3 h-3 mr-2" />
+                    RECHARGE NOW
+                  </CyberButton>
+                </div>
+              </div>
+              <div className="space-y-1 md:space-y-2 text-[10px] md:text-xs font-mono text-muted-foreground mt-4">
                 <div className="flex justify-between">
                   <span>UPTIME:</span>
+                  <span className="text-primary font-bold">99.9%</span>
+                </div>
+              </div>
                   <span>99.9%</span>
                 </div>
               </div>

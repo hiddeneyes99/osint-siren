@@ -303,16 +303,17 @@ export async function registerRoutes(
   });
 
   app.post("/api/admin/generate-code", requireAdminSession, async (req, res) => {
-    const { credits, expiryMinutes } = req.body;
+    const { credits, expiresAt } = req.body;
     const code = Math.random().toString(36).substring(2, 10).toUpperCase();
-    const expiresAt = new Date(Date.now() + (expiryMinutes || 60) * 60000);
-    const redeemCode = await storage.createRedeemCode(code, credits, expiresAt);
+    const expiryDate = expiresAt ? new Date(expiresAt) : new Date(Date.now() + 60 * 60000);
+    const redeemCode = await storage.createRedeemCode(code, credits, expiryDate);
     res.json(redeemCode);
   });
 
   app.post("/api/admin/gift-all", requireAdminSession, async (req, res) => {
-    const { credits, expiryMinutes } = req.body;
-    await storage.updateAllUsersCredits(credits, expiryMinutes);
+    const { credits, expiresAt } = req.body;
+    const expiryDate = expiresAt ? new Date(expiresAt) : undefined;
+    await storage.updateAllUsersCredits(credits, expiryDate);
     res.json({ success: true });
   });
 

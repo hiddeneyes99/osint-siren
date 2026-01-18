@@ -17,7 +17,7 @@ export interface IStorage {
   
   // Admin methods
   getAllUsers(): Promise<User[]>;
-  updateAllUsersCredits(amount: number, expiryMinutes?: number): Promise<void>;
+  updateAllUsersCredits(amount: number, expiresAt?: Date): Promise<void>;
   isNumberProtected(number: string): Promise<string | null>;
   addProtectedNumber(number: string, reason?: string): Promise<void>;
   removeProtectedNumber(number: string): Promise<void>;
@@ -120,11 +120,10 @@ export class DatabaseStorage implements IStorage {
     return await db.select().from(users);
   }
 
-  async updateAllUsersCredits(amount: number, expiryMinutes?: number): Promise<void> {
-    const expiryDate = expiryMinutes ? new Date(Date.now() + expiryMinutes * 60000) : null;
+  async updateAllUsersCredits(amount: number, expiresAt?: Date): Promise<void> {
     await db.update(users).set({ 
       credits: sql`${users.credits} + ${amount}`,
-      creditsExpiry: expiryDate
+      creditsExpiry: expiresAt || null
     });
   }
 

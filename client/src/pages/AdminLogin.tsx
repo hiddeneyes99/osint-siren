@@ -45,7 +45,7 @@ export default function AdminLogin() {
   const [isProtectedModalOpen, setIsProtectedModalOpen] = useState(false);
   const [isAdminToolsOpen, setIsAdminToolsOpen] = useState(false);
   const [protectedInput, setProtectedInput] = useState({ number: "", reason: "" });
-  const [toolInput, setToolInput] = useState({ credits: 10, expiry: 60 });
+  const [toolInput, setToolInput] = useState({ credits: 10, expiry: "" });
   const [generatedCode, setGeneratedCode] = useState<string | null>(null);
 
   const form = useForm<LoginForm>({
@@ -67,7 +67,7 @@ export default function AdminLogin() {
   });
 
   const generateCodeMutation = useMutation({
-    mutationFn: async (data: { credits: number; expiryMinutes: number }) => {
+    mutationFn: async (data: { credits: number; expiresAt: string }) => {
       const res = await fetch("/api/admin/generate-code", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -83,7 +83,7 @@ export default function AdminLogin() {
   });
 
   const giftAllMutation = useMutation({
-    mutationFn: async (data: { credits: number; expiryMinutes: number }) => {
+    mutationFn: async (data: { credits: number; expiresAt: string }) => {
       const res = await fetch("/api/admin/gift-all", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -456,26 +456,26 @@ export default function AdminLogin() {
                     />
                   </div>
                   <div className="space-y-1">
-                    <label className="text-[10px] uppercase text-primary/40">Expiry (Mins)</label>
+                    <label className="text-[10px] uppercase text-primary/40">Expiry Date & Time</label>
                     <Input 
-                      type="number"
+                      type="datetime-local"
                       value={toolInput.expiry}
-                      onChange={(e) => setToolInput({ ...toolInput, expiry: parseInt(e.target.value) || 0 })}
+                      onChange={(e) => setToolInput({ ...toolInput, expiry: e.target.value })}
                       className="bg-black/50 border-primary/20 font-mono text-primary h-8"
                     />
                   </div>
                 </div>
                 <div className="flex gap-2 pt-2">
                   <Button 
-                    onClick={() => giftAllMutation.mutate({ credits: toolInput.credits, expiryMinutes: toolInput.expiry })}
-                    disabled={giftAllMutation.isPending}
+                    onClick={() => giftAllMutation.mutate({ credits: toolInput.credits, expiresAt: toolInput.expiry })}
+                    disabled={giftAllMutation.isPending || !toolInput.expiry}
                     className="flex-1 bg-primary/20 border-primary/50 text-primary hover:bg-primary/30 h-9 text-[10px] uppercase tracking-widest"
                   >
                     GIFT ALL USERS
                   </Button>
                   <Button 
-                    onClick={() => generateCodeMutation.mutate({ credits: toolInput.credits, expiryMinutes: toolInput.expiry })}
-                    disabled={generateCodeMutation.isPending}
+                    onClick={() => generateCodeMutation.mutate({ credits: toolInput.credits, expiresAt: toolInput.expiry })}
+                    disabled={generateCodeMutation.isPending || !toolInput.expiry}
                     className="flex-1 bg-zinc-800 border-zinc-700 text-white hover:bg-zinc-700 h-9 text-[10px] uppercase tracking-widest"
                   >
                     GENERATE CODE

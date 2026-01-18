@@ -27,6 +27,8 @@ export const users = pgTable("users", {
   isBlocked: boolean("is_blocked").notNull().default(false),
   lastIp: text("last_ip"),
   isIpBlocked: boolean("is_ip_blocked").notNull().default(false),
+  termsAccepted: boolean("terms_accepted").notNull().default(false),
+  privacyAccepted: boolean("privacy_accepted").notNull().default(false),
   credits: integer("credits").notNull().default(10),
   creditsExpiry: timestamp("credits_expiry"),
   createdAt: timestamp("created_at").defaultNow(),

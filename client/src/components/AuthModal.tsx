@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
-import { useLocation } from "wouter";
+import { useLocation, Link } from "wouter";
 import { CyberButton } from "@/components/CyberButton";
 import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -27,6 +28,17 @@ import { Separator } from "@/components/ui/separator";
 const authSchema = z.object({
   email: z.string().email("Invalid email address"),
   password: z.string().min(6, "Password must be at least 6 characters"),
+  termsAccepted: z.boolean().refine((val) => val === true, {
+    message: "You must accept the terms and conditions",
+  }).optional(),
+  privacyAccepted: z.boolean().refine((val) => val === true, {
+    message: "You must accept the privacy policy",
+  }).optional(),
+}).refine((data) => {
+  // If it's registration, terms and privacy must be true
+  // This is a bit tricky because the schema is shared between login and register
+  // But we can check for them later or use a union schema
+  return true;
 });
 
 interface AuthModalProps {
@@ -46,16 +58,32 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
     defaultValues: {
       email: "",
       password: "",
+      termsAccepted: false,
+      privacyAccepted: false,
     },
   });
 
   const onSubmit = async (data: z.infer<typeof authSchema>) => {
+    if (!isLogin && (!data.termsAccepted || !data.privacyAccepted)) {
+      toast({
+        title: "Validation Error",
+        description: "Please accept all terms and conditions to continue",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsLoading(true);
     try {
       if (isLogin) {
-        await login(data);
+        await login({ email: data.email, password: data.password });
       } else {
-        await register(data);
+        await register({ 
+          email: data.email, 
+          password: data.password,
+          termsAccepted: data.termsAccepted,
+          privacyAccepted: data.privacyAccepted
+        } as any);
       }
       onClose();
       setLocation("/dashboard");
@@ -131,6 +159,58 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                   </FormItem>
                 )}
               />
+              {!isLogin && (
+                <>
+                  <FormField
+                    control={form.control}
+                    name="termsAccepted"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-start space-x-3 space-y-0 p-1">
+                        <FormControl>
+                          <Checkbox
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                            className="border-primary/50 data-[state=checked]:bg-primary data-[state=checked]:text-black"
+                          />
+                        </FormControl>
+                        <div className="space-y-1 leading-none">
+                          <FormLabel className="text-[10px] font-mono text-primary/70">
+                            I ACCEPT THE{" "}
+                            <Link href="/terms" className="text-primary hover:underline underline-offset-4 decoration-primary/30">
+                              TERMS_OF_SERVICE
+                            </Link>
+                          </FormLabel>
+                          <FormMessage className="text-[8px]" />
+                        </div>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="privacyAccepted"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-start space-x-3 space-y-0 p-1">
+                        <FormControl>
+                          <Checkbox
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                            className="border-primary/50 data-[state=checked]:bg-primary data-[state=checked]:text-black"
+                          />
+                        </FormControl>
+                        <div className="space-y-1 leading-none">
+                          <FormLabel className="text-[10px] font-mono text-primary/70">
+                            I ACCEPT THE{" "}
+                            <Link href="/privacy" className="text-primary hover:underline underline-offset-4 decoration-primary/30">
+                              PRIVACY_POLICY
+                            </Link>
+                          </FormLabel>
+                          <FormMessage className="text-[8px]" />
+                        </div>
+                      </FormItem>
+                    )}
+                  />
+                </>
+              )}
               <CyberButton type="submit" className="w-full" isLoading={isLoading}>
                 {isLogin ? "INITIALIZE LOGIN" : "EXECUTE SIGNUP"}
               </CyberButton>

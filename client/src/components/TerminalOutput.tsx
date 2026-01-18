@@ -79,49 +79,67 @@ export function TerminalOutput({ data, title = "OUTPUT STREAM", className, isLoa
     
     if (isMobileResult) {
       return (
-        <div key={key} className="space-y-6 font-mono text-sm">
+        <div key={key} className="space-y-4 font-mono text-sm">
           {value.map((item: any, index: number) => (
-            <div key={index} className="space-y-1 bg-primary/5 p-3 border border-primary/20">
-              <div className="flex justify-between items-center mb-2 border-b border-primary/20 pb-1">
-                <span className="text-primary font-bold">RESULT #{index + 1}</span>
-                <span className="text-xs text-primary/40">ID: {item.id}</span>
+            <div key={index} className="space-y-3 bg-primary/5 p-4 border border-primary/20 shadow-[0_0_15px_rgba(0,255,0,0.05)] relative overflow-hidden">
+              <div className="absolute top-0 left-0 w-1 h-full bg-primary/40" />
+              <div className="flex justify-between items-center mb-3 border-b border-primary/20 pb-2">
+                <span className="text-primary font-bold tracking-tighter">DATA RECORD #{index + 1}</span>
+                <span className="text-[10px] text-primary/40">ID: {item.id}</span>
               </div>
-              <div className="grid grid-cols-[100px_1fr] gap-2">
-                <span className="text-primary/60">NAME:</span>
-                <span className="text-primary font-bold uppercase">{item.name || "N/A"}</span>
+              <div className="grid grid-cols-[85px_1fr] gap-x-3 gap-y-2">
+                <span className="text-primary/40 text-[10px] uppercase self-center">NAME</span>
+                <span className="text-primary font-bold uppercase tracking-wide">{item.name || "N/A"}</span>
                 
-                <span className="text-primary/60">FATHER:</span>
-                <span className="text-primary uppercase">{item.father_name || "N/A"}</span>
+                <span className="text-primary/40 text-[10px] uppercase self-center">FATHER</span>
+                <span className="text-primary uppercase text-sm">{item.father_name || "N/A"}</span>
                 
-                <span className="text-primary/60">MOBILE:</span>
-                <span className="text-primary">{item.mobile || "N/A"}</span>
+                <div className="col-span-2 my-1 border-t border-primary/10" />
+
+                <span className="text-primary/40 text-[10px] uppercase self-center">MOBILE</span>
+                <span className="text-primary font-bold text-glow">{item.mobile || "N/A"}</span>
                 
-                <span className="text-primary/60">ALTERNATE:</span>
+                <span className="text-primary/40 text-[10px] uppercase self-center">ALT NUM</span>
                 <span className="text-primary">{item.alt_mobile || "N/A"}</span>
                 
-                <span className="text-primary/60">AADHAR:</span>
-                <span className="text-primary">{item.id_number || "N/A"}</span>
+                <div className="col-span-2 my-1 border-t border-primary/10" />
+
+                <span className="text-primary/40 text-[10px] uppercase self-center">AADHAR</span>
+                <span className="text-primary tracking-widest">{item.id_number || "N/A"}</span>
                 
-                <span className="text-primary/60">CIRCLE:</span>
-                <span className="text-primary uppercase">{item.circle?.replace(/&amp;/g, '&') || "N/A"}</span>
+                <span className="text-primary/40 text-[10px] uppercase self-center">CIRCLE</span>
+                <span className="text-primary uppercase text-xs">{item.circle?.replace(/&amp;/g, '&') || "N/A"}</span>
                 
-                <span className="text-primary/60">ADDRESS:</span>
-                <span className="text-primary text-xs leading-relaxed">{item.address?.replace(/!/g, ' ') || "N/A"}</span>
+                <div className="col-span-2 my-1 border-t border-primary/10" />
+
+                <span className="text-primary/40 text-[10px] uppercase pt-0.5">ADDRESS</span>
+                <div className="space-y-1">
+                  <span className="text-primary text-xs leading-relaxed block">{item.address?.replace(/!/g, ' ') || "N/A"}</span>
+                  {item.address && (
+                    <a 
+                      href={`https://www.google.com/maps?q=${encodeURIComponent(item.address.replace(/!/g, ' '))}`} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-primary text-[10px] underline hover:text-primary/80 flex items-center gap-1 mt-1 font-bold"
+                    >
+                      OPEN IN GOOGLE MAPS
+                      <Globe className="w-2.5 h-2.5" />
+                    </a>
+                  )}
+                </div>
                 
                 {item.email && (
                   <>
-                    <span className="text-primary/60">EMAIL:</span>
-                    <span className="text-primary">{item.email}</span>
+                    <div className="col-span-2 my-1 border-t border-primary/10" />
+                    <span className="text-primary/40 text-[10px] uppercase self-center">EMAIL</span>
+                    <span className="text-primary text-xs truncate">{item.email}</span>
                   </>
                 )}
               </div>
-              {index < value.length - 1 && (
-                <div className="text-primary/40 py-2 text-center font-bold">--- NEXT RECORD ---</div>
-              )}
             </div>
           ))}
-          <div className="text-center pt-4 text-primary font-bold animate-pulse text-xs uppercase tracking-widest">
-            MADE BY TECHNICAL WHITE HAT
+          <div className="text-center pt-2 text-primary/40 font-bold animate-pulse text-[10px] uppercase tracking-[0.3em]">
+            SYSTEM TRACE COMPLETE
           </div>
         </div>
       );

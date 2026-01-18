@@ -130,6 +130,7 @@ export async function registerRoutes(
       async () => {
         const apiUrl = (process.env.MOBILE_API_URL || "https://numinfosource.alphaapi.workers.dev/?key=anshapi&mobile={query}")
           .replace("{query}", result.data.number);
+        console.log(`Executing Mobile API: ${apiUrl.split('key=')[0]}key=***`);
         const response = await fetch(apiUrl);
         if (!response.ok) {
           throw new Error("Mobile API failed");

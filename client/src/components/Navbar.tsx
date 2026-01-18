@@ -41,7 +41,7 @@ export function Navbar() {
               <CyberButton 
                 variant="primary" 
                 className="hidden md:flex text-sm px-4 py-2 h-auto animate-pulse shadow-[0_0_15px_rgba(0,255,0,0.4)] border-primary bg-primary/20"
-                onClick={() => window.open("https://t.me/Blackeyes_0", "_blank")}
+                onClick={() => (window as any).openRedeemModal?.()}
                 data-testid="button-buy-credits-nav"
               >
                 <CreditCard className="mr-1 h-4 w-4" />

@@ -68,6 +68,13 @@ export default function Dashboard() {
   const [showLowCreditAlert, setShowLowCreditAlert] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
+  useEffect(() => {
+    (window as any).openRedeemModal = () => setIsRedeemModalOpen(true);
+    return () => {
+      delete (window as any).openRedeemModal;
+    };
+  }, []);
+
   const { data: history = [] } = useQuery<any[]>({
     queryKey: ["/api/user/history"],
     enabled: isAuthenticated,

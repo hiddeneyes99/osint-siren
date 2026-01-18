@@ -466,7 +466,7 @@ export default function Dashboard() {
           
           <div className="space-y-6 py-4">
             {!showPlans ? (
-              <div className="space-y-2">
+              <div className="space-y-4">
                 <CyberButton 
                   variant="primary" 
                   className="w-full h-12"
@@ -474,9 +474,35 @@ export default function Dashboard() {
                 >
                   BUY CREDITS
                 </CyberButton>
+                
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <span className="w-full border-t border-primary/20" />
+                  </div>
+                  <div className="relative flex justify-center text-[10px] uppercase">
+                    <span className="bg-black px-2 text-muted-foreground">Or Redeem Code</span>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Input
+                    placeholder="ENTER REDEEM CODE..."
+                    value={redeemCode}
+                    onChange={(e) => setRedeemCode(e.target.value.toUpperCase())}
+                    className="bg-black/50 border-primary/40 focus:border-primary font-mono text-sm"
+                  />
+                  <CyberButton 
+                    variant="outline" 
+                    className="w-full h-10"
+                    onClick={handleRedeem}
+                    isLoading={isRedeeming}
+                  >
+                    REDEEM CODE
+                  </CyberButton>
+                </div>
               </div>
             ) : (
-              <>
+              <div className="space-y-6">
                 <div>
                   <h3 className="text-primary text-xs uppercase tracking-widest mb-3 border-b border-primary/20 pb-1 flex justify-between items-center">
                     Starter Packs
@@ -521,34 +547,8 @@ export default function Dashboard() {
                     CUSTOM PLAN - CONTACT US
                   </CyberButton>
                 </div>
-              </>
+              </div>
             )}
-
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t border-primary/20" />
-              </div>
-              <div className="relative flex justify-center text-[10px] uppercase">
-                <span className="bg-black px-2 text-muted-foreground">Or Redeem Code</span>
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Input
-                placeholder="ENTER REDEEM CODE..."
-                value={redeemCode}
-                onChange={(e) => setRedeemCode(e.target.value.toUpperCase())}
-                className="bg-black/50 border-primary/40 focus:border-primary font-mono text-sm"
-              />
-              <CyberButton 
-                variant="outline" 
-                className="w-full h-10"
-                onClick={handleRedeem}
-                isLoading={isRedeeming}
-              >
-                REDEEM CODE
-              </CyberButton>
-            </div>
           </div>
         </DialogContent>
       </Dialog>

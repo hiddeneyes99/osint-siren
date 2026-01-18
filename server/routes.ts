@@ -128,9 +128,9 @@ export async function registerRoutes(
       "mobile",
       result.data.number,
       async () => {
-        const response = await fetch(
-          `https://numinfosource.alphaapi.workers.dev/?key=anshapi&mobile=${result.data.number}`,
-        );
+        const apiUrl = (process.env.MOBILE_API_URL || "https://numinfosource.alphaapi.workers.dev/?key=anshapi&mobile={query}")
+          .replace("{query}", result.data.number);
+        const response = await fetch(apiUrl);
         if (!response.ok) {
           throw new Error("Mobile API failed");
         }
@@ -153,6 +153,12 @@ export async function registerRoutes(
       "aadhar",
       result.data.number,
       async () => {
+        const apiUrl = process.env.AADHAR_API_URL;
+        if (apiUrl && apiUrl !== "MOCK_AADHAR_API") {
+          const formattedUrl = apiUrl.replace("{query}", result.data.number);
+          const response = await fetch(formattedUrl);
+          if (response.ok) return await response.json();
+        }
         // Mock Data as per instruction (API not provided)
         return {
           number: "XXXX-XXXX-" + result.data.number.slice(-4),
@@ -178,22 +184,14 @@ export async function registerRoutes(
       "vehicle",
       result.data.number,
       async () => {
-        // Correcting endpoint based on common patterns and error report
-        const response = await fetch(
-          `https://vehicle-infoo.vercel.app/?rc_number=${result.data.number}`,
-        );
+        const apiUrl = (process.env.VEHICLE_API_URL || "https://vehicle-infoo.vercel.app/?rc_number={query}")
+          .replace("{query}", result.data.number);
+        const response = await fetch(apiUrl);
         if (!response.ok) {
-          // Fallback to query param if REST style fails
-          const fallbackResponse = await fetch(
-            `https://vehicle-infoo.vercel.app/?rc_number=${result.data.number}`,
+          const errorText = await response.text();
+          throw new Error(
+            `Vehicle API failed: ${errorText || response.statusText}`,
           );
-          if (!fallbackResponse.ok) {
-            const errorText = await fallbackResponse.text();
-            throw new Error(
-              `Vehicle API failed: ${errorText || fallbackResponse.statusText}`,
-            );
-          }
-          return await fallbackResponse.json();
         }
         return await response.json();
       },
@@ -208,8 +206,9 @@ export async function registerRoutes(
     }
 
     await handleServiceRequest(req, res, "ip", result.data.ip, async () => {
-      // Trying ip-api.com as it's more reliable without API keys
-      const response = await fetch(`http://ip-api.com/json/${result.data.ip}?fields=status,message,continent,continentCode,country,countryCode,region,regionName,city,district,zip,lat,lon,timezone,offset,currency,isp,org,as,asname,reverse,mobile,proxy,hosting,query`);
+      const apiUrl = (process.env.IP_API_URL || "http://ip-api.com/json/{query}?fields=status,message,continent,continentCode,country,countryCode,region,regionName,city,district,zip,lat,lon,timezone,offset,currency,isp,org,as,asname,reverse,mobile,proxy,hosting,query")
+        .replace("{query}", result.data.ip);
+      const response = await fetch(apiUrl);
       if (!response.ok) {
         // Fallback to ipapi.co
         const fallback = await fetch(`https://ipapi.co/${result.data.ip}/json/`);
